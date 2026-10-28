@@ -99,6 +99,7 @@ kbd {
 }
 .row.current { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(63, 224, 245, .35), 0 0 18px rgba(63, 224, 245, .45); }
 .row.example { opacity: .6; }
+
 .row.full { animation: full .3s ease-out; }
 @keyframes full { 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
 .meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
@@ -144,25 +145,62 @@ kbd {
   display: grid; grid-template-columns: repeat(3, 68px); grid-template-rows: 58px 58px 46px;
   gap: 8px; justify-content: center; margin-top: 4px;
 }
-.pad { grid-template-rows: 58px 58px 58px; }
+/* Arrows stay centred on the page; Next round hangs off their right side */
+.pad { grid-template-columns: repeat(3, 68px); grid-template-rows: 58px 58px; position: relative; width: max-content; margin-inline: auto; }
+.pad .next { position: absolute; left: calc(100% + 10px); top: 0; bottom: 0; width: 116px; }
+@media (max-width: 560px) {
+  /* phones: slightly smaller keys so the arrows can stay centred */
+  .pad { grid-template-columns: repeat(3, 56px); grid-template-rows: 54px 54px; gap: 8px; }
+  .pad .next { width: 76px; left: calc(100% + 8px); font-size: .9rem; padding: 4px; gap: 5px; }
+  .pad .next .nl { line-height: 1.1; }
+  .pad .next kbd { font-size: .6rem; padding: 0 3px; }
+  .pad .tool { font-size: .7rem; }
+  .pad .tool kbd { font-size: .52rem; padding: 0 2px; }
+  .pad button.clr { width: 76px; right: calc(100% + 8px); font-size: .9rem; gap: 5px; }
+  .pad .clr .nl { line-height: 1.1; }
+}
+@media (max-width: 380px) {
+  /* very narrow phones: shrink a bit more so both side buttons still fit */
+  .pad { grid-template-columns: repeat(3, 48px); grid-template-rows: 50px 50px; }
+  .pad .next, .pad button.clr { width: 64px; font-size: .82rem; }
+  .pad .next kbd { font-size: .54rem; }
+  .pad button svg { width: 24px; height: 24px; }
+}
 .pad button { font-size: 1.5rem; border-radius: 14px; box-shadow: inset 0 -4px 0 rgba(0,0,0,.25); }
 .pad .up { grid-column: 2; }
+.pad .tool {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-size: .78rem; padding: 4px; background: #2393a8;
+}
+.pad .tool kbd { font-size: .6rem; padding: 0 3px; border-bottom-width: 2px; white-space: nowrap; }
+.pad .tool .tk { display: flex; gap: 3px; }
+.pad .tool > span:first-child { white-space: nowrap; }
+/* Clear all mirrors Next round on the left */
+.pad .clr {
+  position: absolute; right: calc(100% + 10px); top: 0; bottom: 0; width: 116px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 4px;
+  font-size: 1.05rem; border-radius: 18px; background: #d9474d;
+}
+.pad .clr kbd { font-size: .68rem; padding: 0 5px; border-bottom-width: 2px; white-space: nowrap; color: #d9474d; border-color: #fff; }
+.pad .tool kbd { color: #1d7a8c; border-color: #fff; }
+.pad .next kbd { white-space: nowrap; }
 .pad [data-d] { position: relative; }
 .pad .wk {
   position: absolute; right: 7px; bottom: 6px; font: 800 .72rem var(--body); line-height: 1;
   color: rgba(255,255,255,.75);
 }
 .pad .next {
-  grid-column: 2 / -1; grid-row: 3; font-size: 1rem; border-radius: 999px; background: var(--chevron);
+  grid-column: 4; grid-row: 1 / 3; font-size: 1.05rem; border-radius: 18px; background: var(--chevron);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 4px 8px;
 }
-.pad .next .nk { display: flex; gap: 4px; }
+.pad .next { gap: 8px; }
+.pad .next .nk { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .pad .next kbd { font-size: .68rem; padding: 0 5px; border-bottom-width: 2px; color: var(--chevron); border-color: #fff; }
 .pad .back { grid-column: 1; grid-row: 3; font-size: 1.1rem; border-radius: 999px; }
 
 .stage {
   display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
-  padding: 38px 8px 0; border-radius: 20px; overflow: hidden; border: 3px solid rgba(255,255,255,.7);
+  padding: 10px 8px 0; border-radius: 20px; overflow: hidden; border: 3px solid rgba(255,255,255,.7);
   background:
     linear-gradient(180deg, transparent 0 70%, #3c5cc0 70%, #2b4498 100%),
     repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 2px, transparent 2px 48px),
@@ -190,14 +228,28 @@ kbd {
 .bay.next .ped::after { background: #fff; box-shadow: 0 0 6px #5ff0ff, 0 0 14px #5ff0ff; }
 .bay.posing .plate { opacity: 1; }
 .bub {
-  position: absolute; top: -34px; left: 50%; width: 30px; height: 30px; margin-left: -15px; z-index: 2;
-  display: grid; place-items: center; border-radius: 9px; border: 2px solid #fff;
+  position: absolute; top: 0; left: 0; right: 0; margin: 0 auto; width: 38%; max-width: 32px; aspect-ratio: 1; z-index: 2;
+  display: grid; place-items: center; border-radius: 8px; border: 2px solid #fff;
+  transition: width .2s ease-out, max-width .2s ease-out, top .2s ease-out;
   background: var(--c); color: #fff; opacity: 0; pointer-events: none;
 }
 .bay[data-s="4"] .bub { background: #fff; color: var(--navy); border-color: #9fdcff; }
 .bay[data-s="6"] .bub { color: #5a4300; }
-.bub svg { width: 72%; height: 72%; display: block; }
+.bub svg { width: 74%; height: 74%; display: block; filter: drop-shadow(0 2px 0 rgba(0,0,0,.25)); }
 .bay.posing .bub { animation: bub .7s ease-out; }
+.bay.held .bub { opacity: .88; }
+.bay.held.posing .bub { animation: bubin .35s ease-out; }
+/* Locked-in arrows match the tiles in the round box exactly */
+.bay.saved .bub {
+  top: 6px; width: 66px; max-width: 94%; border-radius: 16px; border: 2px solid rgba(0,0,0,.18);
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 12px var(--c);
+}
+.bay.saved .bub svg { width: 64%; height: 64%; }
+.bay[data-s="4"].saved .bub {
+  background: linear-gradient(145deg, #ffffff, #e6f6ff 55%, #f3e6ff); border-color: #9fdcff;
+  box-shadow: inset 0 -4px 0 rgba(120, 170, 220, .25), 0 0 10px rgba(159, 220, 255, .9);
+}
+@keyframes bubin { 0% { transform: translateY(12px) scale(.5); } 60% { transform: translateY(-2px) scale(1.12); } 100% { transform: none; } }
 .bay.p-up img { animation: p-up .45s ease-out; }
 .bay.p-down img { animation: p-down .45s ease-out; }
 .bay.p-left img { animation: p-left .45s ease-out; }
@@ -208,7 +260,22 @@ kbd {
 @keyframes p-left { 35% { transform: translateX(-16%) rotate(-16deg); } 70% { transform: translateX(-4%) rotate(-4deg); } }
 @keyframes p-right { 35% { transform: translateX(16%) rotate(16deg); } 70% { transform: translateX(4%) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .bay img { animation: none !important; } }
-@media (max-width: 420px) { .stage { gap: 2px; padding: 32px 4px 0; } .bub { width: 24px; height: 24px; margin-left: -12px; top: -29px; border-radius: 7px; } }
+@media (max-width: 420px) { .stage { gap: 2px; padding: 8px 4px 0; } .bay.saved .bub { width: 42px; border-radius: 12px; } }
+/* Fixed-height current round: nothing above the pad changes size between rounds */
+.row.hero { display: flex !important; flex-direction: column; align-items: stretch; gap: 10px; }
+.hero .htop { display: flex; align-items: center; justify-content: center; gap: 10px; height: 40px; min-width: 0; }
+.hero .htop .pill { padding: 2px 12px; gap: 6px; flex: none; }
+.hero .htop .pill .lbl { font-size: .72rem; }
+.hero .htop .pill .val { font-size: 1.25rem; }
+.hero .hstat { font-family: var(--display); font-weight: 600; font-size: 1.05rem; color: var(--ink); line-height: 1.15; overflow: hidden; min-width: 0; max-height: 2.3em; text-align: left; }
+.hero .hstat .ok { color: #1f9d55; font-weight: 700; }
+.row.hero .arrows { height: 66px; min-height: 0; flex-wrap: nowrap; }
+.row.hero.waiting { border-style: dashed; }
+#rows:empty { display: none; }
+@media (max-width: 420px) {
+  .row.hero .arrows { height: 44px; }
+  .hero .hstat { font-size: .92rem; }
+}
 @media (prefers-reduced-motion: reduce) { .a.pop { animation: none; } button { transition: none; } }
 @media (max-width: 420px) {
   .row { grid-template-columns: 72px 1fr; }
@@ -227,44 +294,28 @@ kbd {
     <div>
       <h1>Vi Pose</h1>
       <div class="subwrap">
-        <p class="sub">Tap the arrows as they flash. Start a new line for each round.</p>
+        <p class="sub">Record with the arrow keys or WASD, save with Space, Enter or Shift, then go play it. Your next arrow starts the next round.</p>
         <div class="focus-warn" id="warn" hidden>Click this page first. Keys only register while this window is focused.</div>
       </div>
-    </div>
-    <div class="actions">
-      <button id="undo" type="button">Undo</button>
-      <button id="clear" type="button">Clear all</button>
     </div>
   </header>
 
   <div class="stage" id="stage" aria-label="Aingegg ranger bays"></div>
 
-  <div class="legend">
-    <span><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> record</span>
-    <span><kbd>Space</kbd> <kbd>Enter</kbd> <kbd>Shift</kbd> next round</span>
-    <span><kbd>Backspace</kbd> undo</span>
-    <span><kbd>Esc</kbd> clear all</span>
-  </div>
-
-  <div class="rangers" aria-label="Arrow colours by position">
-    <span>Rangers:</span>
-    <span class="dot" style="--c:var(--r1)"></span><span class="dot" style="--c:var(--r2)"></span>
-    <span class="dot" style="--c:var(--r3)"></span><span class="dot s4"></span>
-    <span class="dot" style="--c:var(--r5)"></span><span class="dot" style="--c:var(--r6)"></span>
-    <span class="dot" style="--c:var(--r7)"></span>
-    <span>3 arrows use the middle three, 5 the middle five, 7 all of them</span>
-  </div>
-
-  <div id="rows"></div>
+  <div id="hero" class="row current hero" aria-live="polite"></div>
 
   <div class="pad" aria-label="On-screen arrows">
+    <button class="clr" type="button" id="clear"><span class="nl">Clear all</span><span class="nk"><kbd>Esc</kbd></span></button>
     <button class="up" type="button" data-d="up" aria-label="Up">↑</button>
+    <button class="tool" type="button" id="undo" style="grid-row:1;grid-column:3"><span>Undo</span><kbd>Backspace</kbd></button>
+    <button class="tool" type="button" id="undo2" style="grid-row:1;grid-column:1"><span>Undo</span><kbd>Del</kbd></button>
     <button type="button" data-d="left" aria-label="Left" style="grid-row:2;grid-column:1">←</button>
     <button type="button" data-d="down" aria-label="Down" style="grid-row:2;grid-column:2">↓</button>
     <button type="button" data-d="right" aria-label="Right" style="grid-row:2;grid-column:3">→</button>
-    <button class="back" type="button" id="padundo" aria-label="Undo">⌫</button>
-    <button class="next" type="button" id="next"><span class="nl">Next round</span><span class="nk"><kbd>Space</kbd><kbd>Enter</kbd><kbd>Shift</kbd></span></button>
+    <button class="next" type="button" id="next"><span class="nl">Next round</span><span class="nk"><kbd>␣ Space</kbd><kbd>↵ Enter</kbd><kbd>⇧ Shift</kbd></span></button>
   </div>
+
+  <div id="rows"></div>
 </div>
 
 <script>
@@ -280,17 +331,44 @@ let example = false;
 let rows = [[]];
 let popLast = false;
 const rowsEl = document.getElementById("rows");
+const heroEl = document.getElementById("hero");
+
+function tiles(i, r, popIt) {
+  const ar = document.createElement("div");
+  ar.className = "arrows";
+  if (!r.length) ar.innerHTML = '<span class="empty">Waiting for arrows…</span>';
+  r.forEach((d, j) => {
+    const a = document.createElement("div");
+    a.className = "a s" + slot(i, r.length, j) + (popIt && j === r.length - 1 ? " pop" : "");
+    a.innerHTML = `<small>${j + 1}</small>${arrowSvg(d)}`;
+    ar.appendChild(a);
+  });
+  return ar;
+}
 
 function render() {
+  const last = rows.length - 1;
+  // A just-finished round stays in the big slot until the next round's first arrow
+  const waiting = !rows[last].length && last > 0;
+  const h = last;
+  const r = rows[h];
+  const status = waiting
+    ? `<span class="ok">✓ Round ${last} saved on the rangers</span>`
+    : count(h, r.length);
+  heroEl.innerHTML = `<div class="htop"><span class="pill"><span class="lbl">ROUND</span><span class="val">${h + 1}</span></span><span class="hstat">${status}</span></div>`;
+  heroEl.classList.toggle("waiting", waiting);
+  heroEl.appendChild(tiles(h, r, popLast));
+  if (waiting) heroEl.querySelector(".empty").textContent = `Your next arrow starts Round ${last + 1}`;
+
   rowsEl.innerHTML = "";
-  for (let i = rows.length - 1; i >= 0; i--) {
+  for (let i = h - 1; i >= 0; i--) {
     const r = rows[i];
-    const isCur = i === rows.length - 1;
+    const isCur = false;
     const el = document.createElement("div");
-    el.className = "row" + (isCur && !example ? " current" : "") + (example ? " example" : "");
+    el.className = "row";
     const meta = document.createElement("div");
     meta.className = "meta";
-    meta.innerHTML = `<span class="pill"><span class="lbl">${example ? "EX" : "ROUND"}</span><span class="val">${example ? "" : i + 1}</span></span><span class="n">${r.length} arrow${r.length === 1 ? "" : "s"}</span>`;
+    meta.innerHTML = `<span class="pill"><span class="lbl">${example ? "EX" : "ROUND"}</span><span class="val">${example ? "" : i + 1}</span></span><span class="n">${count(i, r.length)}</span>`;
     const ar = document.createElement("div");
     ar.className = "arrows";
     if (!r.length) ar.innerHTML = '<span class="empty">Waiting for arrows…</span>';
@@ -305,8 +383,6 @@ function render() {
   }
   popLast = false;
   updateStage();
-  const first = rowsEl.firstElementChild;
-  if (first && !example) first.scrollIntoView({ block: "nearest" });
 }
 
 // Rounds go 3,3,5,5,7,7 and use the middle rangers: 3 = red/white/black, 5 adds green/yellow, 7 = all.
@@ -316,6 +392,8 @@ function span(round, len) {
   if (L > 7) L = 7;
   return { L, off: (7 - L) / 2 };
 }
+const target = i => i < 2 ? 3 : i < 4 ? 5 : 7;
+const count = (i, n) => n > target(i) ? `${n} arrows` : `${n} / ${target(i)}${n === target(i) ? " ✓" : ""}`;
 function slot(round, len, j) {
   const { off } = span(round, len);
   return ((off + j) % 7) + 1;
@@ -334,12 +412,21 @@ const bays = EGGS.map((e, k) => {
   stageEl.appendChild(b);
   return b;
 });
+// The stage shows the round in the big box: each ranger holds its arrow above its head
 function updateStage() {
-  const round = rows.length - 1, len = rows[round].length;
+  const last = rows.length - 1;
+  const waiting = !rows[last].length && last > 0;
+  const round = waiting ? last - 1 : last;
+  const r = rows[round], len = r.length;
   const { L, off } = span(round, len);
+  const held = {};
+  r.forEach((d, j) => { held[slot(round, len, j) - 1] = d; });
   bays.forEach((b, k) => {
     b.classList.toggle("off", !example && (k < off || k >= off + L));
-    b.classList.toggle("next", !example && len < L && k === off + len);
+    b.classList.toggle("next", !example && !waiting && len < L && k === off + len);
+    b.classList.toggle("held", k in held);
+    b.classList.toggle("saved", waiting && k in held);
+    if (k in held) b.querySelector(".bub").innerHTML = arrowSvg(held[k]);
   });
 }
 function pose(s, d) {
@@ -357,7 +444,7 @@ function add(d) {
   startReal();
   const cur = rows[rows.length - 1];
   if (cur.length >= 7) {
-    const row = rowsEl.firstElementChild;
+    const row = heroEl;
     if (row) { row.classList.remove("full"); void row.offsetWidth; row.classList.add("full"); }
     return;
   }
@@ -385,7 +472,7 @@ document.addEventListener("keydown", e => {
   if (e.key === " " || e.key === "Enter" || e.key === "Shift") {
     e.preventDefault(); if (!e.repeat) next(); return;
   }
-  if (e.key === "Backspace") { e.preventDefault(); undo(); return; }
+  if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); undo(); return; }
   if (e.key === "Escape") { clearAll(); }
 });
 
@@ -394,8 +481,8 @@ document.querySelectorAll(".pad [data-d]").forEach(b => { b.innerHTML = arrowSvg
 document.querySelectorAll(".pad [data-d]").forEach(b =>
   b.addEventListener("click", () => { add(b.dataset.d); b.blur(); }));
 document.getElementById("next").addEventListener("click", e => { next(); e.currentTarget.blur(); });
-document.getElementById("padundo").addEventListener("click", e => { undo(); e.currentTarget.blur(); });
 document.getElementById("undo").addEventListener("click", e => { undo(); e.currentTarget.blur(); });
+document.getElementById("undo2").addEventListener("click", e => { undo(); e.currentTarget.blur(); });
 document.getElementById("clear").addEventListener("click", e => { clearAll(); e.currentTarget.blur(); });
 
 const warn = document.getElementById("warn");
