@@ -150,17 +150,21 @@ kbd {
 .bay { position: relative; display: flex; flex-direction: column; align-items: center; padding-bottom: 12px; transition: opacity .2s, filter .2s; min-width: 0; }
 .bay .plate {
   position: absolute; top: 2px; width: 92%; aspect-ratio: 1; max-width: 92px; border-radius: 50%;
-  background: radial-gradient(circle at 50% 45%, var(--c) 0 52%, transparent 70%); opacity: .55; transition: opacity .15s;
+  background: var(--c); border: 3px solid rgba(255,255,255,.9); box-shadow: 0 0 0 3px var(--c), 0 0 16px var(--c);
+  opacity: .9; transition: opacity .15s, transform .15s;
 }
-.bay[data-s="4"] .plate { background: radial-gradient(circle at 50% 45%, #fff 0 50%, #bfe8ff 58%, transparent 72%); }
+.bay[data-s="4"] .plate { background: #fff; border-color: #9fdcff; box-shadow: 0 0 0 3px #bfe8ff, 0 0 18px #9fdcff; }
+.bay img { filter: drop-shadow(2px 0 0 var(--c)) drop-shadow(-2px 0 0 var(--c)) drop-shadow(0 2px 0 var(--c)) drop-shadow(0 -2px 0 var(--c)); }
+.bay[data-s="4"] img { filter: drop-shadow(2px 0 0 #9fdcff) drop-shadow(-2px 0 0 #9fdcff) drop-shadow(0 2px 0 #9fdcff) drop-shadow(0 -2px 0 #9fdcff); }
 .bay img { position: relative; z-index: 1; width: 82%; max-width: 80px; aspect-ratio: 1; object-fit: contain; transform-origin: 50% 100%; }
 .bay .ped {
   position: relative; width: 94%; max-width: 88px; height: 13px; margin-top: -2px; border-radius: 50%;
-  background: #ee6a6e; box-shadow: inset 0 -4px 0 #b13c52;
+  background: var(--c); box-shadow: inset 0 -4px 0 rgba(0,0,0,.3), 0 0 0 2px rgba(255,255,255,.8);
 }
+.bay[data-s="4"] .ped { background: #fff; box-shadow: inset 0 -4px 0 #9fc6e6, 0 0 0 2px #9fdcff; }
 .bay .ped::after { content: ""; position: absolute; left: 30%; right: 30%; top: 3px; height: 4px; border-radius: 3px; background: #4fd9ec; }
-.bay.off { opacity: .45; filter: grayscale(.75); }
-.bay.next .plate { opacity: .95; }
+.bay.off { opacity: .35; }
+.bay.next .plate { opacity: 1; transform: scale(1.06); }
 .bay.next .ped::after { background: #fff; box-shadow: 0 0 6px #5ff0ff, 0 0 14px #5ff0ff; }
 .bay.posing .plate { opacity: 1; }
 .bub {
