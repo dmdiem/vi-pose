@@ -57,6 +57,7 @@ h1 {
   font-family: var(--display); font-weight: 700; font-size: 2rem; margin: 0; color: #fff;
   text-shadow: 0 2px 0 var(--pill), 0 0 14px rgba(143, 243, 255, .7); letter-spacing: .01em; text-wrap: balance;
 }
+.subwrap { position: relative; }
 .sub { color: var(--ink); margin: 2px 0 0; font-weight: 700; font-size: 1.1rem; }
 .pill {
   display: inline-flex; align-items: center; gap: 10px; background: var(--pill);
@@ -80,8 +81,8 @@ kbd {
   border: 1px solid #cdbbe8; border-bottom-width: 3px; border-radius: 7px; padding: 2px 9px;
 }
 .focus-warn {
-  position: fixed !important; z-index: 50; pointer-events: none;
-  top: calc(env(safe-area-inset-top, 0px) + 10px); left: 50%; transform: translateX(-50%);
+  position: absolute; z-index: 50; pointer-events: none;
+  left: -6px; top: 50%; transform: translateY(-50%);
   width: max-content; max-width: calc(100vw - 32px);
   font-weight: 700; font-size: .88rem; padding: 8px 14px; border-radius: 12px;
   background: var(--pill); color: var(--pill-text);
@@ -219,7 +220,10 @@ kbd {
   <header>
     <div>
       <h1>Vi Pose</h1>
-      <p class="sub">Tap the arrows as they flash. Start a new line for each round.</p>
+      <div class="subwrap">
+        <p class="sub">Tap the arrows as they flash. Start a new line for each round.</p>
+        <div class="focus-warn" id="warn" hidden>Click this page first. Keys only register while this window is focused.</div>
+      </div>
     </div>
     <div class="actions">
       <button id="undo" type="button">Undo</button>
@@ -244,8 +248,6 @@ kbd {
     <span class="dot" style="--c:var(--r7)"></span>
     <span>3 arrows use the middle three, 5 the middle five, 7 all of them</span>
   </div>
-
-  <div class="focus-warn" id="warn" hidden>Click this page first. Keys only register while this window is focused.</div>
 
   <div id="rows"></div>
 
