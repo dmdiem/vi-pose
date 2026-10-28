@@ -158,11 +158,12 @@ kbd {
   </div>
 
   <div class="rangers" aria-label="Arrow colours by position">
-    <span>Order:</span>
+    <span>Rangers:</span>
     <span class="dot" style="--c:var(--r1)"></span><span class="dot" style="--c:var(--r2)"></span>
     <span class="dot" style="--c:var(--r3)"></span><span class="dot s4"></span>
     <span class="dot" style="--c:var(--r5)"></span><span class="dot" style="--c:var(--r6)"></span>
     <span class="dot" style="--c:var(--r7)"></span>
+    <span>3 arrows use the middle three, 5 the middle five, 7 all of them</span>
   </div>
 
   <div class="focus-warn" id="warn" hidden>Click this page first. Keys only register while this window is focused.</div>
@@ -204,7 +205,7 @@ function render() {
     if (!r.length) ar.innerHTML = '<span class="empty">Waiting for arrows…</span>';
     r.forEach((d, j) => {
       const a = document.createElement("div");
-      a.className = "a s" + ((j % 7) + 1) + (popLast && isCur && j === r.length - 1 ? " pop" : "");
+      a.className = "a s" + slot(i, r.length, j) + (popLast && isCur && j === r.length - 1 ? " pop" : "");
       a.innerHTML = `<small>${j + 1}</small>${SYM[d]}`;
       ar.appendChild(a);
     });
@@ -214,6 +215,15 @@ function render() {
   popLast = false;
   const last = rowsEl.lastElementChild;
   if (last && !example) last.scrollIntoView({ block: "nearest" });
+}
+
+// Rounds go 3,3,5,5,7,7 and use the middle rangers: 3 = red/white/black, 5 adds green/yellow, 7 = all.
+function slot(round, len, j) {
+  const target = round < 2 ? 3 : round < 4 ? 5 : 7;
+  let L = Math.max(target, len % 2 ? len : len + 1);
+  if (L > 7) L = 7;
+  const off = (7 - L) / 2;
+  return ((off + j) % 7) + 1;
 }
 
 function startReal() { if (example) { example = false; rows = [[]]; } }
