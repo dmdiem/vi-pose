@@ -6,94 +6,139 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <title>Arrow Memory Pad</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
 <style>
-/* Layout: one narrow column; key legend up top, stacked sequence rows below, newest row glowing */
+/* Layout: the minigame's lavender screen; navy pill labels, one card per round, arrows coloured by ranger slot */
 :root {
-  --bg: #eef1f7;
-  --panel: #ffffff;
-  --line: #d5dbe8;
-  --fg: #1c2233;
-  --muted: #64708a;
-  --accent: #e8792b;
-  --accent-soft: #fde9da;
-  --arrow: #2d4fb8;
-  --display: "Chakra Petch", "Trebuchet MS", system-ui, sans-serif;
-  --body: "Figtree", system-ui, -apple-system, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12151f; --panel: #1b2030; --line: #2c3349; --fg: #e9ecf5; --muted: #8d97b0;
-    --accent: #f39445; --accent-soft: #3a2a1f; --arrow: #8fb0ff; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #12151f; --panel: #1b2030; --line: #2c3349; --fg: #e9ecf5; --muted: #8d97b0;
-  --accent: #f39445; --accent-soft: #3a2a1f; --arrow: #8fb0ff; color-scheme: dark;
+  color-scheme: light;
+  --screen-top: #c8a6f2;
+  --screen-bot: #f6c9e8;
+  --chevron: #ff5fb8;
+  --pill: #4a3a78;
+  --pill-text: #8ff3ff;
+  --card: rgba(255, 255, 255, .62);
+  --card-line: rgba(255, 255, 255, .9);
+  --ink: #3a2a63;
+  --muted: #6e5a97;
+  --cyan: #3fe0f5;
+  --navy: #2f4fa8;
+  /* ranger order, left to right */
+  --r1: #2f6fd8; --r2: #3dbb4a; --r3: #e2363a; --r4: #ffffff;
+  --r5: #2a2a33; --r6: #f2cc2a; --r7: #ff5fb0;
+  --display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito", system-ui, -apple-system, sans-serif;
 }
 * { box-sizing: border-box; }
+html { background: var(--screen-bot); }
 body {
-  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px;
+  min-height: 100%;
+  color: var(--ink); font-family: var(--body); font-size: 15px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, var(--screen-top), var(--screen-bot));
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 24px 40px;
+  padding-block: 22px 40px;
 }
-.wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
-h1 { font-family: var(--display); font-size: 1.7rem; margin: 0; letter-spacing: .02em; text-wrap: balance; }
-.sub { color: var(--muted); margin: 4px 0 0; }
+.wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; position: relative; }
+.chev {
+  position: absolute; inset: 0 0 auto; height: 140px; pointer-events: none; overflow: hidden;
+  opacity: .35; z-index: 0;
+}
+.chev::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(-60deg, transparent 0 34px, var(--chevron) 34px 58px, transparent 58px 110px);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+          mask: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+}
+.wrap > *:not(.chev) { position: relative; z-index: 1; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+h1 {
+  font-family: var(--display); font-weight: 700; font-size: 2rem; margin: 0; color: #fff;
+  text-shadow: 0 2px 0 var(--pill), 0 0 14px rgba(143, 243, 255, .7); letter-spacing: .01em; text-wrap: balance;
+}
+.sub { color: var(--ink); margin: 2px 0 0; font-weight: 700; }
+.pill {
+  display: inline-flex; align-items: center; gap: 10px; background: var(--pill);
+  border: 2px solid rgba(255,255,255,.55); border-radius: 999px; padding: 4px 16px;
+  font-family: var(--display); color: var(--pill-text);
+}
+.pill .lbl { font-size: .8rem; letter-spacing: .08em; font-weight: 600; }
+.pill .val { font-size: 1.35rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
 .actions { display: flex; gap: 8px; }
 button {
-  font: 600 .9rem var(--body); color: var(--fg); background: var(--panel);
-  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+  font: 800 .9rem var(--body); color: #fff; background: var(--pill);
+  border: 2px solid rgba(255,255,255,.55); border-radius: 999px; padding: 7px 14px; cursor: pointer;
+  transition: transform .08s;
 }
-button:hover { border-color: var(--accent); }
-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: .88rem; }
+button:hover { border-color: var(--cyan); }
+button:active { transform: translateY(1px); }
+button:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: .86rem; font-weight: 700; }
 kbd {
-  font: 600 .78rem var(--body); color: var(--fg); background: var(--panel);
-  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px;
+  font: 800 .76rem var(--body); color: var(--ink); background: #fff;
+  border: 1px solid #cdbbe8; border-bottom-width: 3px; border-radius: 6px; padding: 1px 6px;
 }
 .focus-warn {
-  font-size: .88rem; padding: 8px 12px; border-radius: 8px;
-  background: var(--accent-soft); color: var(--fg);
+  font-weight: 700; font-size: .88rem; padding: 8px 14px; border-radius: 12px;
+  background: var(--pill); color: var(--pill-text);
 }
 #rows { display: flex; flex-direction: column; gap: 10px; }
 .row {
-  display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: center;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center;
+  background: var(--card); border: 2px solid var(--card-line); border-radius: 16px; padding: 10px 12px;
 }
-.row.current { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.row.example { opacity: .55; }
-.meta { font-family: var(--display); line-height: 1.15; }
-.meta .n { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.meta .c { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
-.arrows { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; min-height: 44px; align-items: center; }
+.row.current { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(63, 224, 245, .35), 0 0 18px rgba(63, 224, 245, .45); }
+.row.example { opacity: .6; }
+.meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.meta .pill { padding: 2px 10px; gap: 6px; }
+.meta .pill .lbl { font-size: .68rem; }
+.meta .pill .val { font-size: 1.05rem; }
+.meta .n { font-family: var(--display); font-weight: 600; font-size: .82rem; color: var(--muted); }
+.arrows { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; min-height: 48px; align-items: center; }
 .a {
-  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px;
-  background: var(--bg); color: var(--arrow); font-size: 1.6rem; font-weight: 700;
-  font-family: var(--display); position: relative;
+  width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px;
+  font-size: 1.65rem; font-weight: 700; font-family: var(--display); position: relative;
+  background: var(--c); color: #fff; border: 2px solid rgba(0,0,0,.18);
+  text-shadow: 0 1px 0 rgba(0,0,0,.25); box-shadow: inset 0 -4px 0 rgba(0,0,0,.18);
 }
 .a small {
-  position: absolute; top: 2px; left: 4px; font-size: .58rem; color: var(--muted); font-family: var(--body);
+  position: absolute; top: 1px; left: 5px; font-size: .58rem; font-family: var(--body); font-weight: 800;
+  color: rgba(255,255,255,.85); text-shadow: none;
 }
+.a.s1 { --c: var(--r1); } .a.s2 { --c: var(--r2); } .a.s3 { --c: var(--r3); }
+.a.s5 { --c: var(--r5); } .a.s6 { --c: var(--r6); color: #5a4300; text-shadow: none; }
+.a.s6 small { color: rgba(90,67,0,.7); } .a.s7 { --c: var(--r7); }
+.a.s4 {
+  --c: var(--r4); color: var(--navy); text-shadow: none;
+  background: linear-gradient(145deg, #ffffff, #e6f6ff 55%, #f3e6ff);
+  border-color: #9fdcff; box-shadow: inset 0 -4px 0 rgba(120, 170, 220, .25), 0 0 10px rgba(159, 220, 255, .9);
+}
+.a.s4 small { color: #6b8fc4; }
 .a.pop { animation: pop .18s ease-out; }
 @keyframes pop { from { transform: scale(.6); } to { transform: scale(1); } }
-.empty { color: var(--muted); font-size: .9rem; }
+.empty { color: var(--muted); font-size: .9rem; font-weight: 700; }
+.rangers { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: .8rem; font-weight: 800; color: var(--muted); }
+.rangers .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--c); border: 2px solid rgba(0,0,0,.15); }
+.rangers .dot.s4 { background: #fff; border-color: #9fdcff; box-shadow: 0 0 6px #9fdcff; }
 .pad {
-  display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(2, 56px);
-  gap: 8px; justify-content: center;
+  display: grid; grid-template-columns: repeat(3, 68px); grid-template-rows: 58px 58px 46px;
+  gap: 8px; justify-content: center; margin-top: 4px;
 }
-.pad button { font-size: 1.5rem; color: var(--arrow); }
+.pad button { font-size: 1.5rem; border-radius: 14px; box-shadow: inset 0 -4px 0 rgba(0,0,0,.25); }
 .pad .up { grid-column: 2; }
-.pad .next { grid-column: 2 / -1; grid-row: 3; font-size: .95rem; color: var(--fg); }
-.pad .back { grid-column: 1; grid-row: 3; font-size: .95rem; color: var(--fg); }
-.pad { grid-template-rows: 56px 56px 44px; }
-@media (prefers-reduced-motion: reduce) { .a.pop { animation: none; } }
-@media (max-width: 420px) { .row { grid-template-columns: 56px 1fr; } .a { width: 38px; height: 38px; font-size: 1.35rem; } }
+.pad .next { grid-column: 2 / -1; grid-row: 3; font-size: .95rem; border-radius: 999px; background: var(--chevron); }
+.pad .back { grid-column: 1; grid-row: 3; font-size: 1.1rem; border-radius: 999px; }
+@media (prefers-reduced-motion: reduce) { .a.pop { animation: none; } button { transition: none; } }
+@media (max-width: 420px) {
+  .row { grid-template-columns: 72px 1fr; }
+  .a { width: 38px; height: 38px; font-size: 1.35rem; border-radius: 10px; }
+  h1 { font-size: 1.6rem; }
+}
 </style>
 
 <div class="wrap">
+  <div class="chev" aria-hidden="true"></div>
   <header>
     <div>
       <h1>Arrow Memory Pad</h1>
@@ -110,6 +155,14 @@ kbd {
     <span><kbd>Space</kbd> <kbd>Enter</kbd> <kbd>Shift</kbd> next round</span>
     <span><kbd>Backspace</kbd> undo</span>
     <span><kbd>Esc</kbd> clear all</span>
+  </div>
+
+  <div class="rangers" aria-label="Arrow colours by position">
+    <span>Order:</span>
+    <span class="dot" style="--c:var(--r1)"></span><span class="dot" style="--c:var(--r2)"></span>
+    <span class="dot" style="--c:var(--r3)"></span><span class="dot s4"></span>
+    <span class="dot" style="--c:var(--r5)"></span><span class="dot" style="--c:var(--r6)"></span>
+    <span class="dot" style="--c:var(--r7)"></span>
   </div>
 
   <div class="focus-warn" id="warn" hidden>Click this page first. Keys only register while this window is focused.</div>
@@ -133,7 +186,7 @@ const KEYS = {
   w: "up", s: "down", a: "left", d: "right", W: "up", S: "down", A: "left", D: "right"
 };
 let example = true;
-let rows = [["up","left","down"],["right","right","up"],["left","down","up","right","left"]];
+let rows = [["up","left","down"],["right","right","up"],["left","down","up","right","left","down","right"]];
 let popLast = false;
 const rowsEl = document.getElementById("rows");
 
@@ -145,15 +198,13 @@ function render() {
     el.className = "row" + (isCur && !example ? " current" : "") + (example ? " example" : "");
     const meta = document.createElement("div");
     meta.className = "meta";
-    meta.innerHTML = `<div class="n">${example ? "Example" : "Round " + (i + 1)}</div><div class="c">${r.length}</div>`;
+    meta.innerHTML = `<span class="pill"><span class="lbl">${example ? "EX" : "ROUND"}</span><span class="val">${example ? "" : i + 1}</span></span><span class="n">${r.length} arrow${r.length === 1 ? "" : "s"}</span>`;
     const ar = document.createElement("div");
     ar.className = "arrows";
-    if (!r.length) {
-      ar.innerHTML = '<span class="empty">Waiting for arrows…</span>';
-    }
+    if (!r.length) ar.innerHTML = '<span class="empty">Waiting for arrows…</span>';
     r.forEach((d, j) => {
       const a = document.createElement("div");
-      a.className = "a" + (popLast && isCur && j === r.length - 1 ? " pop" : "");
+      a.className = "a s" + ((j % 7) + 1) + (popLast && isCur && j === r.length - 1 ? " pop" : "");
       a.innerHTML = `<small>${j + 1}</small>${SYM[d]}`;
       ar.appendChild(a);
     });
