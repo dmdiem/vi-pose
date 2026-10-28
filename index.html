@@ -115,6 +115,14 @@ kbd {
   border-color: #9fdcff; box-shadow: inset 0 -4px 0 rgba(120, 170, 220, .25), 0 0 10px rgba(159, 220, 255, .9);
 }
 .a.s4 small { color: #6b8fc4; }
+.a svg { width: 64%; height: 64%; display: block; filter: drop-shadow(0 1.5px 0 rgba(0,0,0,.25)); }
+.a.s4 svg, .a.s6 svg { filter: none; }
+.row.current { padding: 14px 14px; border-width: 3px; }
+.row.current .arrows { gap: 8px; min-height: 66px; }
+.row.current .a { width: 66px; height: 66px; border-radius: 16px; }
+.row.current .a small { font-size: .7rem; top: 3px; left: 7px; }
+.row.current .meta .pill .val { font-size: 1.4rem; }
+.pad button svg { width: 30px; height: 30px; display: block; margin: auto; }
 .a.pop { animation: pop .18s ease-out; }
 @keyframes pop { from { transform: scale(.6); } to { transform: scale(1); } }
 .empty { color: var(--muted); font-size: .9rem; font-weight: 700; }
@@ -133,6 +141,10 @@ kbd {
 @media (max-width: 420px) {
   .row { grid-template-columns: 72px 1fr; }
   .a { width: 38px; height: 38px; font-size: 1.35rem; border-radius: 10px; }
+  .row.current { grid-template-columns: 1fr; }
+  .row.current .meta { flex-direction: row; align-items: center; gap: 8px; }
+  .row.current .arrows { gap: 5px; min-height: 44px; }
+  .row.current .a { width: 42px; height: 42px; border-radius: 12px; }
   h1 { font-size: 1.6rem; }
 }
 </style>
@@ -181,7 +193,10 @@ kbd {
 </div>
 
 <script>
-const SYM = { up: "↑", down: "↓", left: "←", right: "→" };
+const ROT = { up: 0, right: 90, down: 180, left: 270 };
+function arrowSvg(d) {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" style="transform:rotate(${ROT[d]}deg)"><path d="M12 2.5 L21.5 12 H16 V21.5 H8 V12 H2.5 Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></svg>`;
+}
 const KEYS = {
   ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
   w: "up", s: "down", a: "left", d: "right", W: "up", S: "down", A: "left", D: "right"
@@ -193,7 +208,8 @@ const rowsEl = document.getElementById("rows");
 
 function render() {
   rowsEl.innerHTML = "";
-  rows.forEach((r, i) => {
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const r = rows[i];
     const isCur = i === rows.length - 1;
     const el = document.createElement("div");
     el.className = "row" + (isCur && !example ? " current" : "") + (example ? " example" : "");
@@ -206,15 +222,15 @@ function render() {
     r.forEach((d, j) => {
       const a = document.createElement("div");
       a.className = "a s" + slot(i, r.length, j) + (popLast && isCur && j === r.length - 1 ? " pop" : "");
-      a.innerHTML = `<small>${j + 1}</small>${SYM[d]}`;
+      a.innerHTML = `<small>${j + 1}</small>${arrowSvg(d)}`;
       ar.appendChild(a);
     });
     el.append(meta, ar);
     rowsEl.appendChild(el);
-  });
+  }
   popLast = false;
-  const last = rowsEl.lastElementChild;
-  if (last && !example) last.scrollIntoView({ block: "nearest" });
+  const first = rowsEl.firstElementChild;
+  if (first && !example) first.scrollIntoView({ block: "nearest" });
 }
 
 // Rounds go 3,3,5,5,7,7 and use the middle rangers: 3 = red/white/black, 5 adds green/yellow, 7 = all.
@@ -252,6 +268,7 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") { clearAll(); }
 });
 
+document.querySelectorAll(".pad [data-d]").forEach(b => { b.innerHTML = arrowSvg(b.dataset.d); });
 document.querySelectorAll(".pad [data-d]").forEach(b =>
   b.addEventListener("click", () => { add(b.dataset.d); b.blur(); }));
 document.getElementById("next").addEventListener("click", e => { next(); e.currentTarget.blur(); });
