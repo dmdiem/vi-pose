@@ -86,7 +86,8 @@ kbd {
 }
 .pad button { font-size: 1.5rem; color: var(--arrow); }
 .pad .up { grid-column: 2; }
-.pad .next { grid-column: 1 / -1; grid-row: 3; font-size: .95rem; color: var(--fg); }
+.pad .next { grid-column: 2 / -1; grid-row: 3; font-size: .95rem; color: var(--fg); }
+.pad .back { grid-column: 1; grid-row: 3; font-size: .95rem; color: var(--fg); }
 .pad { grid-template-rows: 56px 56px 44px; }
 @media (prefers-reduced-motion: reduce) { .a.pop { animation: none; } }
 @media (max-width: 420px) { .row { grid-template-columns: 56px 1fr; } .a { width: 38px; height: 38px; font-size: 1.35rem; } }
@@ -120,6 +121,7 @@ kbd {
     <button type="button" data-d="left" aria-label="Left" style="grid-row:2;grid-column:1">←</button>
     <button type="button" data-d="down" aria-label="Down" style="grid-row:2;grid-column:2">↓</button>
     <button type="button" data-d="right" aria-label="Right" style="grid-row:2;grid-column:3">→</button>
+    <button class="back" type="button" id="padundo" aria-label="Undo">⌫</button>
     <button class="next" type="button" id="next">Next round</button>
   </div>
 </div>
@@ -192,6 +194,7 @@ document.addEventListener("keydown", e => {
 document.querySelectorAll(".pad [data-d]").forEach(b =>
   b.addEventListener("click", () => { add(b.dataset.d); b.blur(); }));
 document.getElementById("next").addEventListener("click", e => { next(); e.currentTarget.blur(); });
+document.getElementById("padundo").addEventListener("click", e => { undo(); e.currentTarget.blur(); });
 document.getElementById("undo").addEventListener("click", e => { undo(); e.currentTarget.blur(); });
 document.getElementById("clear").addEventListener("click", e => { clearAll(); e.currentTarget.blur(); });
 
