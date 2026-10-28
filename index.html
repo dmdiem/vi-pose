@@ -95,6 +95,8 @@ kbd {
 }
 .row.current { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(63, 224, 245, .35), 0 0 18px rgba(63, 224, 245, .45); }
 .row.example { opacity: .6; }
+.row.full { animation: full .3s ease-out; }
+@keyframes full { 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
 .meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .meta .pill { padding: 2px 10px; gap: 6px; }
 .meta .pill .lbl { font-size: .68rem; }
@@ -350,6 +352,11 @@ function startReal() { if (example) { example = false; rows = [[]]; } }
 function add(d) {
   startReal();
   const cur = rows[rows.length - 1];
+  if (cur.length >= 7) {
+    const row = rowsEl.firstElementChild;
+    if (row) { row.classList.remove("full"); void row.offsetWidth; row.classList.add("full"); }
+    return;
+  }
   cur.push(d);
   pose(slot(rows.length - 1, cur.length, cur.length - 1), d);
   popLast = true; render();
