@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Arrow Memory Pad</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column; key legend up top, stacked sequence rows below, newest row glowing */
+:root {
+  --bg: #eef1f7;
+  --panel: #ffffff;
+  --line: #d5dbe8;
+  --fg: #1c2233;
+  --muted: #64708a;
+  --accent: #e8792b;
+  --accent-soft: #fde9da;
+  --arrow: #2d4fb8;
+  --display: "Chakra Petch", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151f; --panel: #1b2030; --line: #2c3349; --fg: #e9ecf5; --muted: #8d97b0;
+    --accent: #f39445; --accent-soft: #3a2a1f; --arrow: #8fb0ff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151f; --panel: #1b2030; --line: #2c3349; --fg: #e9ecf5; --muted: #8d97b0;
+  --accent: #f39445; --accent-soft: #3a2a1f; --arrow: #8fb0ff; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+}
+.wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--display); font-size: 1.7rem; margin: 0; letter-spacing: .02em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.actions { display: flex; gap: 8px; }
+button {
+  font: 600 .9rem var(--body); color: var(--fg); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: .88rem; }
+kbd {
+  font: 600 .78rem var(--body); color: var(--fg); background: var(--panel);
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px;
+}
+.focus-warn {
+  font-size: .88rem; padding: 8px 12px; border-radius: 8px;
+  background: var(--accent-soft); color: var(--fg);
+}
+#rows { display: flex; flex-direction: column; gap: 10px; }
+.row {
+  display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+}
+.row.current { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.row.example { opacity: .55; }
+.meta { font-family: var(--display); line-height: 1.15; }
+.meta .n { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.meta .c { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.arrows { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; min-height: 44px; align-items: center; }
+.a {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px;
+  background: var(--bg); color: var(--arrow); font-size: 1.6rem; font-weight: 700;
+  font-family: var(--display); position: relative;
+}
+.a small {
+  position: absolute; top: 2px; left: 4px; font-size: .58rem; color: var(--muted); font-family: var(--body);
+}
+.a.pop { animation: pop .18s ease-out; }
+@keyframes pop { from { transform: scale(.6); } to { transform: scale(1); } }
+.empty { color: var(--muted); font-size: .9rem; }
+.pad {
+  display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(2, 56px);
+  gap: 8px; justify-content: center;
+}
+.pad button { font-size: 1.5rem; color: var(--arrow); }
+.pad .up { grid-column: 2; }
+.pad .next { grid-column: 1 / -1; grid-row: 3; font-size: .95rem; color: var(--fg); }
+.pad { grid-template-rows: 56px 56px 44px; }
+@media (prefers-reduced-motion: reduce) { .a.pop { animation: none; } }
+@media (max-width: 420px) { .row { grid-template-columns: 56px 1fr; } .a { width: 38px; height: 38px; font-size: 1.35rem; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Arrow Memory Pad</h1>
+      <p class="sub">Tap the arrows as they flash. Start a new line for each round.</p>
+    </div>
+    <div class="actions">
+      <button id="undo" type="button">Undo</button>
+      <button id="clear" type="button">Clear all</button>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> record</span>
+    <span><kbd>Space</kbd> <kbd>Enter</kbd> <kbd>Shift</kbd> next round</span>
+    <span><kbd>Backspace</kbd> undo</span>
+    <span><kbd>Esc</kbd> clear all</span>
+  </div>
+
+  <div class="focus-warn" id="warn" hidden>Click this page first. Keys only register while this window is focused.</div>
+
+  <div id="rows"></div>
+
+  <div class="pad" aria-label="On-screen arrows">
+    <button class="up" type="button" data-d="up" aria-label="Up">↑</button>
+    <button type="button" data-d="left" aria-label="Left" style="grid-row:2;grid-column:1">←</button>
+    <button type="button" data-d="down" aria-label="Down" style="grid-row:2;grid-column:2">↓</button>
+    <button type="button" data-d="right" aria-label="Right" style="grid-row:2;grid-column:3">→</button>
+    <button class="next" type="button" id="next">Next round</button>
+  </div>
+</div>
+
+<script>
+const SYM = { up: "↑", down: "↓", left: "←", right: "→" };
+const KEYS = {
+  ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+  w: "up", s: "down", a: "left", d: "right", W: "up", S: "down", A: "left", D: "right"
+};
+let example = true;
+let rows = [["up","left","down"],["right","right","up"],["left","down","up","right","left"]];
+let popLast = false;
+const rowsEl = document.getElementById("rows");
+
+function render() {
+  rowsEl.innerHTML = "";
+  rows.forEach((r, i) => {
+    const isCur = i === rows.length - 1;
+    const el = document.createElement("div");
+    el.className = "row" + (isCur && !example ? " current" : "") + (example ? " example" : "");
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.innerHTML = `<div class="n">${example ? "Example" : "Round " + (i + 1)}</div><div class="c">${r.length}</div>`;
+    const ar = document.createElement("div");
+    ar.className = "arrows";
+    if (!r.length) {
+      ar.innerHTML = '<span class="empty">Waiting for arrows…</span>';
+    }
+    r.forEach((d, j) => {
+      const a = document.createElement("div");
+      a.className = "a" + (popLast && isCur && j === r.length - 1 ? " pop" : "");
+      a.innerHTML = `<small>${j + 1}</small>${SYM[d]}`;
+      ar.appendChild(a);
+    });
+    el.append(meta, ar);
+    rowsEl.appendChild(el);
+  });
+  popLast = false;
+  const last = rowsEl.lastElementChild;
+  if (last && !example) last.scrollIntoView({ block: "nearest" });
+}
+
+function startReal() { if (example) { example = false; rows = [[]]; } }
+function add(d) { startReal(); rows[rows.length - 1].push(d); popLast = true; render(); }
+function next() {
+  startReal();
+  if (rows[rows.length - 1].length) rows.push([]);
+  render();
+}
+function undo() {
+  if (example) return;
+  const cur = rows[rows.length - 1];
+  if (cur.length) cur.pop();
+  else if (rows.length > 1) rows.pop();
+  render();
+}
+function clearAll() { example = false; rows = [[]]; render(); }
+
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (KEYS[e.key]) { e.preventDefault(); if (!e.repeat) add(KEYS[e.key]); return; }
+  if (e.key === " " || e.key === "Enter" || e.key === "Shift") {
+    e.preventDefault(); if (!e.repeat) next(); return;
+  }
+  if (e.key === "Backspace") { e.preventDefault(); undo(); return; }
+  if (e.key === "Escape") { clearAll(); }
+});
+
+document.querySelectorAll(".pad [data-d]").forEach(b =>
+  b.addEventListener("click", () => { add(b.dataset.d); b.blur(); }));
+document.getElementById("next").addEventListener("click", e => { next(); e.currentTarget.blur(); });
+document.getElementById("undo").addEventListener("click", e => { undo(); e.currentTarget.blur(); });
+document.getElementById("clear").addEventListener("click", e => { clearAll(); e.currentTarget.blur(); });
+
+const warn = document.getElementById("warn");
+window.addEventListener("blur", () => { warn.hidden = false; });
+window.addEventListener("focus", () => { warn.hidden = true; });
+
+render();
+</script>
+
+</html>
