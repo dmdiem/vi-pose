@@ -80,8 +80,12 @@ kbd {
   border: 1px solid #cdbbe8; border-bottom-width: 3px; border-radius: 7px; padding: 2px 9px;
 }
 .focus-warn {
+  position: fixed !important; z-index: 50; pointer-events: none;
+  top: calc(env(safe-area-inset-top, 0px) + 10px); left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: calc(100vw - 32px);
   font-weight: 700; font-size: .88rem; padding: 8px 14px; border-radius: 12px;
   background: var(--pill); color: var(--pill-text);
+  border: 2px solid rgba(255,255,255,.55); box-shadow: 0 6px 18px rgba(58, 42, 99, .35);
 }
 #rows { display: flex; flex-direction: column; gap: 10px; }
 .row {
